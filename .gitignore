@@ -1,0 +1,4 @@
+segment/
+BuildModel/weight/
+.vscode/
+__pycache__/
