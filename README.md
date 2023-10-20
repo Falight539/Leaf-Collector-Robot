@@ -51,9 +51,26 @@ the more possitive or negative means the more angle to turn in order to avoid ob
 
 ---
 ### Example and Explanation
+1. Obstacle is on the right hand side
 
+![](https://github.com/Falight539/TerrainDetector/blob/master/im_source/split_right.png)
 
+As you can see, I've split image into small patches then find the possible way to move each row from bottom to top.
+In this case, object is on the middle of half <b>'right hand side of image'</b> so, the robot have to <b>'take a left turn'</b> to avoid it.
 
+The result from the server will be: `[0, 0, 0, 0, -20, -20, -20, -20]`
+
+2. Obstacle is on the left hand side
+
+![](https://github.com/Falight539/TerrainDetector/blob/master/im_source/split_left.png)
+
+Result: `[0, 0, 0, 20, 30, 20, 20, 20]`
+
+3. Obstracle is on the middle left
+
+![](https://github.com/Falight539/TerrainDetector/blob/master/im_source/split_lil_left.png)
+
+Result: `[0, 0, 0, 0, 0, 777, 50, 777]`
 
 
 
