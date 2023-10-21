@@ -38,7 +38,7 @@ img = cv2.resize(cv2.imread('./test.png'), (256, 256))
 replace `cv2.imread('./test.png')` with numpy array like image. <br> Then just call the function with `asyncio.run(main())` every time you would like to use this API
 
 #### Result from the API
-The server will return `list` with of direction
+The server will return `list` of direction and magnitude
 
 Value | Meaning
 -----|-----
