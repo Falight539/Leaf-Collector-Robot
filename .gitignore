@@ -2,3 +2,5 @@ segment/
 BuildModel/weight/
 .vscode/
 __pycache__/
+client_mqtt.py
+server_mqtt.py

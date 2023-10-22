@@ -1,5 +1,5 @@
 import asyncio
-import websockets.server as serv
+from websockets.server import serve
 
 
 async def handler(ws):
@@ -11,7 +11,7 @@ async def handler(ws):
 
 
 async def main():
-    async with serv(handler, 'localhost', 1234):
+    async with serve(handler, 'localhost', 1234):
         await asyncio.Future()
 
 if __name__ == '__main__':
