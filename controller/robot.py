@@ -1,17 +1,30 @@
+import smbus2 as smbus
+from adafruit_servokit import ServoKit
+
+def StrTobytes(src: str):
+    converted = []
+    for b in src:
+        converted.append(ord(b))
+    return converted
+
 import math
 import time
 
 from controller.pid import pid_forward
 
 class Robot:
-    def __init__(self):
+    def __init__(self, sDriverType=16, arduinoAdd=0x0b):
         self.L_speed = 50
         self.L_dir = 1
 
         self.R_speed = 50
         self.R_dir = 1
         
+        self.ser_kit = ServoKit(channels=sDriverType)
         self.servo = [0, 0, 0, 0]
+
+        self.I2Cadd = arduinoAdd
+        self.I2Cbus = smbus.SMBus(1)
 
         self.mx_speed = 255
 
@@ -23,17 +36,41 @@ class Robot:
         # Set new max speed according to the system PWM
         self.mx_speed = mx_speed
 
+    def set_servo_pins(self, font_l: int, font_r: int, back_l: int, back_r: int):
+        # Set each servo pin from Servo Driver
+        self.servo[0] = font_l
+        self.servo[1] = font_r
+        self.servo[2] = back_l
+        self.servo[3] = back_r
+
+    def SendData(self):
+        if self.L_dir < 0:
+            L_dir = 'B'
+        else:
+            L_dir = 'F'
+        if self.R_dir < 0:
+            R_dir = 'B'
+        else:
+            R_dir = 'F'
+
+        package = "-".join([str(self.L_speed), str(L_dir), str(self.R_speed), str(R_dir)])
+        print(package)
+        package = StrTobytes(package)
+        print(package)
+        package = smbus.i2c_msg.write(self.I2Cadd, package)
+        # Sending the data via I2C to arduino Mega
+        self.I2Cbus.i2c_rdwr(package)
+
     def set_servos_angle(self, *angles, degree = True):
         for i, angle in enumerate(angles):
             if not degree:
-                # Convert rad to angle
                 angle = angle*(180/math.pi)
-            self.servo[i] = angle
+            self.ser_kit.servo[self.servo[i]].angle = angle
 
     def set_servo_angle(self, n: int, angle: int, degree = True):
         if not degree:
             angle = angle*(180/math.pi)
-        self.servo[n] = angle
+        self.ser_kit.servo[self.servo[n]].angle = angle
 
     def set_speeds(self, L: int, R: int):
         self.L_speed = L
@@ -82,8 +119,10 @@ class Robot:
 
         self.L_speed, self.L_dir = ML[0], ML[1]
         self.R_speed, self.R_dir = MR[0], MR[1]
+
+        self.SendData()
     
-    def turn_by_angle(self, tar, pos):
+    def turn_by_angle(self, pos, tar):
 
         # Index of each servo
         #
@@ -99,6 +138,7 @@ class Robot:
 
         ag_diff = tar - pos # (+) Turn right, (-) Turn left
 
+        # Try to turn servos in the way the make the robot easy to rotate
         self.set_servos_angle(45, -45, -45, 45)
 
         if abs(ag_diff) > 5:
@@ -113,3 +153,5 @@ class Robot:
         else:
             self.set_speeds(0, 0)
             self.set_dirs(1, 1)
+        
+        self.SendData()

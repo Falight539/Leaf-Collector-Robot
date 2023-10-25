@@ -1,0 +1,7 @@
+numpy
+base64
+opencv-python
+websockets
+asyncio
+smbus2
+adafruit-circuitpython-servokit
