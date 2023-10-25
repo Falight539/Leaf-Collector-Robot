@@ -12,120 +12,79 @@ from controller.robot import Robot
 from api.Client import fetch_dir
 
 # Setup. . . (IP, sensor pins, motor, etc..)
+
+# I2C address was setted to 0x0b by defalut
+# Servo Driver type was setted to 16 pins by default
+# You can change it according to your setup
 leaf_collector = Robot()
 
-IP = 'localhost'
-Port = '1234'
+# IP = 'localhost'
+# Port = '1234'
 
 # Test API
-res = fetch_dir(IP, Port, cv2.imread(r'./BuildModel/lil_left.png'))
-print(res)
-
+# res = fetch_dir(IP, Port, cv2.imread(r'./BuildModel/lil_left.png'))
+# print(res)
+const =[0.02,0.001,0.0015]
+for_angle = 0
+one = True
 last_ag = 0
+count = 0
+start = time.time()
+left_turncount = 0
+right_turncount = 0
 # Loop overtime
 while True:
     
 
+    if one:
+        leaf_collector.set_servo_angle(leaf_collector.for_angle)
+        
+        one = False
+
+    if action[0]:
+        leaf_collector.forward(360-yaw.get_yaw(),0,const)
+        if time.time() - start > 5 :
+            action[0] = False
+            action[1] = True
+
+            start = time.time()
+
+    
+    if action[1]:
+        #turn to the right
+        l_angle, r_angle, l_ratio, r_ratio = turning(-30)
+        print(l_angle, r_angle)
+        leaf_collector.set_servo_angle(l_angle, r_angle, -1*l_angle, -1*r_angle)
+        left_speed = 200*l_ratio if 200*l_ratio >= 80 else 80
+        right_speed = 200*r_ratio if 200*r_ratio >= 80 else 80
+        leaf_collector.set_speeds(left_speed, right_speed)
+        if yaw.get_yaw() == -30:
+            l_angle, r_angle, l_ratio, r_ratio = turning(0)
+            leaf_collector.set_servo_angle(l_angle, r_angle, -1*l_angle, -1*r_angle)
+            leaf_collector.set_speeds(0,0)
+            left_turncount += 1
+
+    if action[2]:
+        #turn to the right
+        l_angle, r_angle, l_ratio, r_ratio = turning(30)
+        print(l_angle, r_angle)
+        leaf_collector.set_servo_angle(l_angle, r_angle, -1*l_angle, -1*r_angle)
+        left_speed = 200*l_ratio if 200*l_ratio >= 80 else 80
+        right_speed = 200*r_ratio if 200*r_ratio >= 80 else 80
+        leaf_collector.set_speeds(left_speed, right_speed)
+        if yaw.get_yaw() == 30:
+            l_angle, r_angle, l_ratio, r_ratio = turning(0)
+            leaf_collector.set_servo_angle(l_angle, r_angle, -1*l_angle, -1*r_angle)
+            leaf_collector.set_speeds(0,0)
+            right_turncount += 1
+            count += 1
 
 
-    leaf_collector.set_mxSpeed(255)
-
-    #cp 0
-    leaf_collector.forward(last_ag, 0)
-    #if last_ag is not 0 then start timer
-    if last_ag != 0:
-        start_time = time.time()
-
-    # move straight without turning
-    #cp 1
-    #if time passed 10 second then turn left
-    if time.time() - start_time > 10:
-        while last_ag != -90:
-            leaf_collector.forward(last_ag, -90)
-             #wait for 1 second before next iteration
-            time.sleep(1)
-            #reset timer 
-            start_time = time.time()
-            break
-
-    leaf_collector.forward(last_ag, 0)
-    #cp2
-    #if time passed 10 second then turn left
-    if time.time() - start_time > 10:
-        while last_ag != -90:
-            leaf_collector.forward(last_ag, -90)
-            time.sleep(1)
-            #reset timer
-            start_time = time.time()
-            break
+    if left_turncount ==1 and right_turncount == 0:
+        action[1] = False 
 
 
-
-    leaf_collector.forward(last_ag, 0)
-    #cp 2
-    #if time passed 10 second then turn left
-    if time.time() - start_time > 10:
-        while last_ag != -90:
-            leaf_collector.forward(last_ag, -90)
-            time.sleep(1)
-            #reset timer
-            start_time = time.time()
-            break
-
-    leaf_collector.forward(last_ag, 0)
-
-    #cp 3
-    if time.time() - start_time > 5:
-        while last_ag != -90:
-            leaf_collector.forward(last_ag, -90)
-            time.sleep(1)
-            #reset timer
-            start_time = time.time()
-            break
-    leaf_collector.forward(last_ag, 0)
-    #cp 4
-    if time.time() - start_time > 5:
-        while last_ag != -90:
-            leaf_collector.forward(last_ag, -90)
-            time.sleep(1)
-            #reset timer
-            start_time = time.time()
-            break
-    #cp 5 ++
-    for i in range(0, 10):
-        leaf_collector.forward(last_ag, 0)
-
-        if time.time() - start_time > 10:
-            while last_ag != 90:
-                leaf_collector.forward(last_ag, 90)
-                time.sleep(1)
-                #reset timer
-                start_time = time.time()
-                break
-        leaf_collector.forward(last_ag, 0)
-        if time.time() - start_time > 3:
-            while last_ag != 90:
-                leaf_collector.forward(last_ag, 90)
-                time.sleep(1)
-                #reset timer
-                start_time = time.time()
-                break
-        leaf_collector.forward(last_ag, 0)
-        if time.time() - start_time > 10:
-            while last_ag != -90:
-                leaf_collector.forward(last_ag, -90)
-                time.sleep(1)
-                #reset timer
-                start_time = time.time()
-                break
-        leaf_collector.forward(last_ag, 0)
-        if time.time() - start_time > 3:
-            while last_ag != -90:
-                leaf_collector.forward(last_ag, -90)
-                time.sleep(1)
-                #reset timer
-                start_time = time.time()
-                break
+    if count == 3:
+        break
 
 
-    break
