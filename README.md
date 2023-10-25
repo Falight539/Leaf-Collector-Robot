@@ -1,5 +1,5 @@
-# TerrainDetector
-Automatic path planning for obstacles avoidance API for automatic leaf collector robot | KMITL Feedback control - Final project
+# Leaf Collector Robot
+Autonomous leaf collector Robot with obstacle avoidance AI | KMITL Feedback control - Final project
 -----
 ### Setting up in Raspberry PI
 1. install all neccessary python libraries
