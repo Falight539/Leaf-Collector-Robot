@@ -34,7 +34,6 @@ left_turncount = 0
 right_turncount = 0
 # Loop overtime
 while True:
-    
 
     if one:
         leaf_collector.set_servo_angle(leaf_collector.for_angle)
